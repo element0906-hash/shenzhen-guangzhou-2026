@@ -274,6 +274,28 @@ body{
   .event .tag{display:inline-block !important;margin-top:8px !important;}
 }
 
+
+/* V11: 預留底部功能列空間，避免最後一筆行程被遮住 */
+@media (max-width:760px){
+  .app{
+    padding-bottom:calc(150px + env(safe-area-inset-bottom)) !important;
+  }
+  main{
+    padding-bottom:calc(120px + env(safe-area-inset-bottom)) !important;
+  }
+  .panel.active{
+    padding-bottom:40px !important;
+  }
+  #daycontent{
+    padding-bottom:24px !important;
+  }
+  nav{
+    min-height:78px !important;
+    padding-top:9px !important;
+    padding-bottom:max(10px, env(safe-area-inset-bottom)) !important;
+  }
+}
+
 </style>
 </head>
 <body>
