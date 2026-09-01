@@ -613,6 +613,52 @@ button,.add,.save,.cancel,.del,nav button{
   }
 }
 
+
+/* V18：iPhone / Lark 內建瀏覽器清單強制版型 */
+@media (max-width:760px){
+  #todoList .item,
+  #shoppingList .item,
+  #wishlistList .item{
+    display:grid !important;
+    grid-template-columns:24px minmax(0,1fr) 34px !important;
+    column-gap:11px !important;
+    align-items:start !important;
+    width:100% !important;
+    height:auto !important;
+    min-height:0 !important;
+  }
+
+  #todoList .item .check,
+  #shoppingList .item .check,
+  #wishlistList .item .check{
+    box-sizing:border-box !important;
+    width:23px !important;
+    min-width:23px !important;
+    max-width:23px !important;
+    height:23px !important;
+    min-height:23px !important;
+    max-height:23px !important;
+  }
+
+  #todoList .itemtext,
+  #shoppingList .itemtext,
+  #wishlistList .itemtext{
+    min-width:0 !important;
+    width:auto !important;
+    overflow:visible !important;
+    writing-mode:horizontal-tb !important;
+  }
+
+  #todoList .itemtext b,#todoList .itemtext small,
+  #shoppingList .itemtext b,#shoppingList .itemtext small,
+  #wishlistList .itemtext b,#wishlistList .itemtext small{
+    white-space:normal !important;
+    word-break:break-word !important;
+    overflow-wrap:anywhere !important;
+    writing-mode:horizontal-tb !important;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -803,7 +849,17 @@ function renderDays(){
 function esc(s){return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
 function renderSimple(type,id){
  let a=get(type);
- document.getElementById(id).innerHTML=a.length?a.map((x,i)=>`<div class="item ${x.done?'done':''}"><input class="check" type="checkbox" ${x.done?'checked':''} onchange="toggle('${type}',${i})"><div class="itemtext"><b>${esc(x.name)}</b><small>${esc(x.group||x.detail||"")}</small></div><button class="del" onclick="removeItem('${type}',${i})">×</button></div>`).join(""):`<div class="note">目前沒有項目，按「＋ 新增」開始記錄。</div>`;
+ document.getElementById(id).innerHTML=a.length?a.map((x,i)=>`
+ <div class="item ${x.done?'done':''}" style="display:grid!important;grid-template-columns:24px minmax(0,1fr) 34px!important;gap:11px!important;align-items:start!important;width:100%!important;height:auto!important;min-height:0!important">
+   <input class="check" type="checkbox" ${x.done?'checked':''}
+     style="width:23px!important;min-width:23px!important;max-width:23px!important;height:23px!important;min-height:23px!important;max-height:23px!important;margin:2px 0 0!important;padding:0!important"
+     onchange="toggle('${type}',${i})">
+   <div class="itemtext" style="min-width:0!important;width:auto!important;max-width:100%!important;writing-mode:horizontal-tb!important">
+     <b style="display:block!important;white-space:normal!important;word-break:break-word!important;writing-mode:horizontal-tb!important">${esc(x.name)}</b>
+     <small style="display:block!important;white-space:normal!important;word-break:break-word!important;writing-mode:horizontal-tb!important">${esc(x.group||x.detail||"")}</small>
+   </div>
+   <button type="button" class="del" style="width:34px!important;min-width:34px!important;max-width:34px!important;height:34px!important;min-height:34px!important;padding:0!important" onclick="removeItem('${type}',${i})">×</button>
+ </div>`).join(""):`<div class="note">目前沒有項目，按「＋ 新增」開始記錄。</div>`;
 }
 function toggle(t,i){let a=get(t);a[i].done=!a[i].done;set(t,a);renderAll()}
 function removeItem(t,i){let a=get(t);a.splice(i,1);set(t,a);renderAll()}
