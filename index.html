@@ -666,7 +666,7 @@ button,.add,.save,.cancel,.del,nav button{
 <header class="hero">
   <div class="kicker">DESIGN & SOURCING TRIP · 2026</div>
   <h1>深圳 ‧ 廣州</h1>
-  <p>09.07 — 09.12 · 6 DAYS 5 NIGHTS</p>
+  <p>09.07 — 09.12 · 6 DAYS 5 NIGHTS · <span id="syncStatus">本機模式</span></p>
   <div class="stats">
     <div class="stat"><b>6</b><span>DAYS</span></div>
     <div class="stat"><b id="todoStat">0</b><span>待辦事項</span></div>
@@ -717,7 +717,14 @@ button,.add,.save,.cancel,.del,nav button{
 
 <div class="modal" id="modal"><div class="sheet"><h3 id="modalTitle"></h3><div id="modalForm"></div><div class="actions"><button type="button" class="cancel" onclick="closeModal()">取消</button><button type="button" class="save" onclick="saveModal()">儲存</button></div></div></div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+const SUPABASE_URL="https://yjanygcgtrdkmwdvqxzx.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY="sb_publishable_wo3eRVZFpMMzJKY846C4ig_yf3D_Nk5";
+const TRIP_ID="shenzhen-guangzhou-2026";
+let sb=null, cloudReady=false, realtimeChannel=null;
+function supabaseConfigured(){return SUPABASE_URL.startsWith("https://") && SUPABASE_PUBLISHABLE_KEY.startsWith("sb_publishable_");}
+if(supabaseConfigured() && window.supabase){sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);}
 const itinerary=[
  {date:"9/7（一）",city:"台北 → 深圳",events:[
   {time:"14:50",type:"航班",name:"中華航空 CI0527｜桃園 T2 → 深圳寶安 T3",meta:"台北桃園國際機場 第二航站 → 深圳寶安國際機場 第三航站 · 16:45 抵達 · 航程約 1小時55分 · 空中巴士 A330-300 · 直飛"},
@@ -801,7 +808,75 @@ const get=(k,d=[])=>{
     return JSON.parse(JSON.stringify(d));
   }
 };
-const set=(k,v)=>storageSetRaw("sg_"+k,JSON.stringify(v));
+const setLocal=(k,v)=>storageSetRaw("sg_"+k,JSON.stringify(v));
+const set=(k,v)=>{
+  setLocal(k,v);
+  if(cloudReady) queueCloudSave(k,v);
+  return true;
+};
+
+let cloudSaveTimers={};
+function queueCloudSave(key,value){
+  clearTimeout(cloudSaveTimers[key]);
+  cloudSaveTimers[key]=setTimeout(()=>saveCollectionToCloud(key,value),180);
+}
+async function saveCollectionToCloud(key,value){
+  if(!sb || !cloudReady) return;
+  try{
+    const {error}=await sb.from("trip_state").upsert({
+      trip_id:TRIP_ID,
+      collection:key,
+      data:value,
+      updated_at:new Date().toISOString()
+    },{onConflict:"trip_id,collection"});
+    if(error) throw error;
+    setSyncText("已同步");
+  }catch(err){
+    console.error("Supabase save error",err);
+    setSyncText("同步失敗");
+  }
+}
+async function loadCloudState(){
+  if(!sb) return false;
+  try{
+    const {data,error}=await sb.from("trip_state")
+      .select("collection,data")
+      .eq("trip_id",TRIP_ID);
+    if(error) throw error;
+    (data||[]).forEach(row=>setLocal(row.collection,row.data));
+    cloudReady=true;
+    setSyncText("即時同步中");
+    renderAll();
+    subscribeRealtime();
+    return true;
+  }catch(err){
+    console.error("Supabase load error",err);
+    setSyncText("本機模式");
+    return false;
+  }
+}
+function subscribeRealtime(){
+  if(!sb || realtimeChannel) return;
+  realtimeChannel=sb.channel("trip-state-"+TRIP_ID)
+    .on("postgres_changes",
+      {event:"*",schema:"public",table:"trip_state",filter:"trip_id=eq."+TRIP_ID},
+      payload=>{
+        const row=payload.new;
+        if(row && row.collection){
+          setLocal(row.collection,row.data);
+          renderAll();
+          setSyncText("剛剛同步");
+        }
+      })
+    .subscribe(status=>{
+      if(status==="SUBSCRIBED") setSyncText("即時同步中");
+    });
+}
+function setSyncText(text){
+  const el=document.getElementById("syncStatus");
+  if(el) el.textContent=text;
+}
+
 // 修復舊版曾使用的錯誤 singular key
 try{
   const oldTodo=storageGetRaw("sg_todo");
@@ -960,5 +1035,10 @@ function showMessage(text){
   window.__toastTimer=setTimeout(()=>t.classList.remove("show"),1400);
 }
 renderAll();
+if(sb){
+  loadCloudState();
+}else{
+  setSyncText("尚未連接 Supabase");
+}
 </script>
 </body></html>
