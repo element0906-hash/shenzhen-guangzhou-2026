@@ -296,6 +296,29 @@ body{
   }
 }
 
+
+/* V12: 新增成功提示 */
+#saveToast{
+  position:fixed;
+  left:50%;
+  bottom:calc(105px + env(safe-area-inset-bottom));
+  transform:translate(-50%,12px);
+  background:#5c4a3c;
+  color:#fff;
+  padding:9px 16px;
+  border-radius:999px;
+  font-size:14px;
+  z-index:80;
+  opacity:0;
+  pointer-events:none;
+  transition:.2s ease;
+  box-shadow:0 6px 20px #0002;
+}
+#saveToast.show{
+  opacity:1;
+  transform:translate(-50%,0);
+}
+
 </style>
 </head>
 <body>
@@ -481,13 +504,61 @@ function openModal(type){
  document.getElementById("modal").classList.add("open");
 }
 function closeModal(){document.getElementById("modal").classList.remove("open")}
+function field(id){
+  const el=document.getElementById(id);
+  return el ? el.value : "";
+}
 function saveModal(){
- let a=get(modalType);
- if(modalType==="expense")a.push({date:m_date.value,name:m_name.value||"未命名",amount:+m_amount.value||0,account:m_account.value,category:m_category.value,payer:m_payer.value,note:m_note.value});
- if(modalType==="todo")a.push({name:m_name.value||"未命名",group:m_group.value,done:false});
- if(modalType==="shopping")a.push({name:m_name.value||"未命名",detail:m_detail.value,done:false});
- if(modalType==="wishlist")a.push({name:m_name.value||"未命名",detail:m_detail.value,done:false});
- set(modalType,a);closeModal();renderAll();
+  if(!modalType) return;
+  const a=get(modalType,[]);
+  if(modalType==="expense"){
+    a.push({
+      date:field("m_date"),
+      name:field("m_name").trim()||"未命名",
+      amount:Number(field("m_amount"))||0,
+      account:field("m_account")||"公司",
+      category:field("m_category")||"其他",
+      payer:field("m_payer").trim(),
+      note:field("m_note").trim()
+    });
+  }
+  if(modalType==="todo"){
+    a.push({
+      name:field("m_name").trim()||"未命名",
+      group:field("m_group")||"出發前",
+      done:false
+    });
+  }
+  if(modalType==="shopping"){
+    a.push({
+      name:field("m_name").trim()||"未命名",
+      detail:field("m_detail").trim(),
+      done:false
+    });
+  }
+  if(modalType==="wishlist"){
+    a.push({
+      name:field("m_name").trim()||"未命名",
+      detail:field("m_detail").trim(),
+      done:false
+    });
+  }
+  set(modalType,a);
+  closeModal();
+  renderAll();
+  showSaved();
+}
+function showSaved(){
+  let t=document.getElementById("saveToast");
+  if(!t){
+    t=document.createElement("div");
+    t.id="saveToast";
+    t.textContent="已新增";
+    document.body.appendChild(t);
+  }
+  t.classList.add("show");
+  clearTimeout(window.__toastTimer);
+  window.__toastTimer=setTimeout(()=>t.classList.remove("show"),1200);
 }
 renderAll();
 </script>
