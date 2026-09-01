@@ -83,6 +83,197 @@ nav button{border:0;background:transparent;padding:7px 2px;color:#7d817d;font-si
   color:#665446 !important;
 }
 
+
+/* V9 Mobile-first layout */
+:root{
+  --mobile-max: 680px;
+}
+html,body{
+  width:100%;
+  max-width:100%;
+  overflow-x:hidden;
+}
+body{
+  min-width:0 !important;
+}
+.app, .shell, .layout, .container, main{
+  max-width:100% !important;
+}
+@media (max-width: 760px){
+  body{
+    font-size:15px;
+    line-height:1.5;
+    padding:0 !important;
+    margin:0;
+    background:#f6f2ec;
+  }
+
+  /* hide desktop-style side rail if present */
+  aside, .sidebar, .side-nav, .left-nav, .desktop-only{
+    display:none !important;
+  }
+
+  .app, .shell, .layout, .page, .container, main{
+    display:block !important;
+    width:100% !important;
+    max-width:100% !important;
+    margin:0 !important;
+    padding:0 !important;
+  }
+
+  header, .hero{
+    border-radius:0 !important;
+    margin:0 !important;
+    padding:18px 16px 16px !important;
+  }
+
+  h1{
+    font-size:27px !important;
+    line-height:1.15 !important;
+    letter-spacing:.06em !important;
+    margin:0 0 6px !important;
+  }
+
+  .hero p, .subtitle{
+    font-size:13px !important;
+  }
+
+  .day-tabs, .tabs{
+    display:flex !important;
+    overflow-x:auto !important;
+    gap:8px !important;
+    padding:12px 14px 6px !important;
+    margin:0 !important;
+    scroll-snap-type:x proximity;
+    -webkit-overflow-scrolling:touch;
+  }
+  .day-tab, .tab{
+    flex:0 0 auto !important;
+    min-width:88px !important;
+    padding:10px 12px !important;
+    scroll-snap-align:start;
+  }
+
+  .legend{
+    overflow-x:auto !important;
+    white-space:nowrap !important;
+    padding:8px 14px 10px !important;
+    gap:10px !important;
+    -webkit-overflow-scrolling:touch;
+  }
+
+  .content, .content-grid, .main-grid, .grid, .columns{
+    display:block !important;
+    width:100% !important;
+  }
+
+  .panel, .card, .section, .timeline-wrap{
+    width:auto !important;
+    margin:10px 12px !important;
+    border-radius:16px !important;
+  }
+
+  .timeline{
+    padding:4px 10px 6px !important;
+  }
+
+  .event{
+    grid-template-columns:58px 18px 1fr !important;
+    gap:8px !important;
+    margin-bottom:10px !important;
+  }
+  .event .time, .time{
+    font-size:14px !important;
+    width:auto !important;
+    min-width:0 !important;
+  }
+  .event .card, .event-card{
+    margin:0 !important;
+    padding:12px !important;
+    border-radius:14px !important;
+  }
+  .event .name, .event-title{
+    font-size:16px !important;
+    line-height:1.35 !important;
+  }
+  .event .meta, .event-meta{
+    font-size:13px !important;
+    line-height:1.5 !important;
+  }
+
+  .toolbar, .section-head, .topbar{
+    flex-wrap:wrap !important;
+    gap:8px !important;
+  }
+
+  button, .btn, select, input, textarea{
+    min-height:44px !important;
+    font-size:16px !important; /* prevent iOS zoom */
+  }
+
+  input, textarea, select{
+    width:100% !important;
+    box-sizing:border-box !important;
+  }
+
+  .modal, .dialog, .modal-card{
+    width:calc(100vw - 24px) !important;
+    max-width:none !important;
+    max-height:86vh !important;
+    margin:12px !important;
+    border-radius:18px !important;
+  }
+
+  .expense-summary, .stats, .summary-grid{
+    display:grid !important;
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+    gap:10px !important;
+  }
+
+  table{
+    display:block !important;
+    width:100% !important;
+    overflow-x:auto !important;
+    -webkit-overflow-scrolling:touch;
+  }
+
+  /* Bottom mobile nav, if existing nav uses these labels/classes */
+  .mobile-nav{
+    position:sticky !important;
+    bottom:0 !important;
+    z-index:20 !important;
+    display:flex !important;
+    justify-content:space-around !important;
+    gap:4px !important;
+    padding:8px 8px calc(8px + env(safe-area-inset-bottom)) !important;
+    background:rgba(250,247,242,.96) !important;
+    backdrop-filter:blur(12px);
+    border-top:1px solid #e5ddd3;
+  }
+
+  footer{
+    padding-bottom:calc(84px + env(safe-area-inset-bottom)) !important;
+  }
+}
+
+@media (min-width: 761px){
+  body{
+    max-width:680px;
+    margin:0 auto;
+  }
+}
+
+
+/* V10: mobile Safari visibility hardening */
+@media (max-width:760px){
+  #daycontent,.timeline,.event,.panel.active{display:block !important;visibility:visible !important;opacity:1 !important;}
+  #itinerary.panel.active{min-height:320px !important;}
+  .event{position:relative !important;padding:12px 12px 12px 72px !important;}
+  .event .time{position:absolute !important;left:12px !important;top:14px !important;width:50px !important;}
+  .event h3{margin:0 0 6px !important;}
+  .event .tag{display:inline-block !important;margin-top:8px !important;}
+}
+
 </style>
 </head>
 <body>
@@ -195,12 +386,28 @@ const defaults={
   {name:"當代藝術與城市規劃館",detail:"深圳市福田區 · 少年宮站 A2",done:false}]
 };
 let activeDay=0, modalType="";
-const get=(k,d=[])=>JSON.parse(localStorage.getItem("sg_"+k)||JSON.stringify(d));
-const set=(k,v)=>localStorage.setItem("sg_"+k,JSON.stringify(v));
-["todos","shopping","wishlist"].forEach(k=>{if(!localStorage.getItem("sg_"+k))set(k,defaults[k])});
-if(!localStorage.getItem("sg_expenses"))set("expenses",[]);
-if(!localStorage.getItem("sg_rate"))localStorage.setItem("sg_rate","4.3");
-document.getElementById("rate").value=localStorage.getItem("sg_rate");
+const memoryStore={};
+function storageGetRaw(key){
+  try{return window.localStorage.getItem(key)}
+  catch(e){return Object.prototype.hasOwnProperty.call(memoryStore,key)?memoryStore[key]:null}
+}
+function storageSetRaw(key,value){
+  try{window.localStorage.setItem(key,value)}
+  catch(e){memoryStore[key]=String(value)}
+}
+const get=(k,d=[])=>{
+  try{
+    const raw=storageGetRaw("sg_"+k);
+    return raw?JSON.parse(raw):JSON.parse(JSON.stringify(d));
+  }catch(e){
+    return JSON.parse(JSON.stringify(d));
+  }
+};
+const set=(k,v)=>storageSetRaw("sg_"+k,JSON.stringify(v));
+["todos","shopping","wishlist"].forEach(k=>{if(!storageGetRaw("sg_"+k))set(k,defaults[k])});
+if(!storageGetRaw("sg_expenses"))set("expenses",[]);
+if(!storageGetRaw("sg_rate"))storageSetRaw("sg_rate","4.3");
+document.getElementById("rate").value=storageGetRaw("sg_rate")||"4.3";
 
 
 function catClass(type){
@@ -225,7 +432,7 @@ function renderSimple(type,id){
 function toggle(t,i){let a=get(t);a[i].done=!a[i].done;set(t,a);renderAll()}
 function removeItem(t,i){let a=get(t);a.splice(i,1);set(t,a);renderAll()}
 function renderExpenses(){
- localStorage.setItem("sg_rate",document.getElementById("rate").value||"0");
+ storageSetRaw("sg_rate",document.getElementById("rate").value||"0");
  const a=get("expenses"), f=document.getElementById("expenseFilter").value;
  const shown=f?a.filter(x=>(x.account||"公司")===f):a;
  const total=a.reduce((s,x)=>s+(+x.amount||0),0),rate=+document.getElementById("rate").value||0;
