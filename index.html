@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>深圳 ‧ 廣州｜Design & Sourcing Trip</title>
+<style>
+:root{--bg:#f6f1e9;--card:#fffaf3;--ink:#3d4039;--muted:#7d8078;--line:#ded6c9;--accent:#a85d3b;--dark:#87907a;--warn:#d9c6a9;--blue:#9caaab;--sage:#c2c8b8;--ivory:#e7d8c1}
+*{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif}
+button,input,select,textarea{font:inherit}.app{max-width:980px;margin:auto;min-height:100vh;padding-bottom:92px}
+.hero{background:var(--dark);color:white;padding:36px 22px 26px;border-radius:0 0 30px 30px;position:relative;overflow:hidden}
+.hero:after{content:"SZ  GZ";position:absolute;right:-8px;top:5px;font-size:76px;font-weight:900;color:#ffffff0b;letter-spacing:-6px}
+.kicker{font-size:12px;letter-spacing:2.2px;color:#f1dfc6;font-weight:800}.hero h1{font-size:35px;line-height:1;margin:12px 0 10px;letter-spacing:-1.5px}
+.hero p{margin:0;color:#cbd2ce}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:23px}
+.stat{background:#ffffff0d;border:1px solid #ffffff18;border-radius:16px;padding:12px}.stat b{display:block;font-size:18px}.stat span{font-size:11px;color:#aeb8b2}
+main{padding:18px}.section-title{display:flex;justify-content:space-between;align-items:end;margin:8px 2px 12px}.section-title h2{margin:0;font-size:20px}.section-title small{color:var(--muted)}
+.daytabs{display:flex;gap:8px;overflow:auto;padding-bottom:6px;scrollbar-width:none}.daytab{border:1px solid #dfd3c5;background:#eee7de;padding:10px 13px;border-radius:15px;white-space:nowrap;color:#5c4a3c;cursor:pointer}.daytab.active{background:#cbb59d;color:#47382e;border-color:#cbb59d}
+.dayhead{margin:16px 0 10px}.dayhead b{font-size:25px}.dayhead span{color:var(--muted);margin-left:7px}
+.timeline{border-left:2px solid #d7d8d1;margin-left:9px;padding-left:18px}.event{position:relative;background:var(--card);border:1px solid var(--line);border-radius:19px;padding:15px;margin:0 0 12px;box-shadow:0 5px 18px #2221}.event:before{content:"";position:absolute;width:10px;height:10px;border-radius:50%;background:var(--accent);left:-24px;top:21px;border:3px solid var(--bg)}
+.time{font-size:11px;font-weight:800;color:#a85d3b;letter-spacing:.5px}.event h3{font-size:16px;margin:4px 0 5px}.meta{font-size:12px;color:var(--muted);line-height:1.55}.tag{display:inline-block;padding:4px 7px;background:#eee6da;border-radius:8px;margin:5px 4px 0 0;font-size:11px}
+.panel{display:none}.panel.active{display:block}.cards{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.mini{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:15px}.mini b{font-size:20px;display:block}.mini span{font-size:12px;color:var(--muted)}
+.toolbar{display:flex;justify-content:space-between;align-items:center;margin:8px 0 12px}.add{border:0;background:var(--ink);color:white;border-radius:13px;padding:10px 13px;cursor:pointer}
+.list{display:grid;gap:9px}.item{background:var(--card);border:1px solid var(--line);border-radius:17px;padding:13px;display:flex;gap:11px;align-items:flex-start}.item.done .itemtext{text-decoration:line-through;color:#999}.check{width:23px;height:23px;accent-color:#a85d3b}.itemtext{flex:1}.itemtext b{display:block}.itemtext small{color:var(--muted)}.del{border:0;background:transparent;color:#aaa;font-size:18px;cursor:pointer}
+.expense-total{background:var(--dark);color:white;border-radius:21px;padding:18px;margin-bottom:12px}.expense-total small{color:#aeb8b2}.expense-total b{font-size:30px;display:block;margin-top:4px}
+.form{display:grid;gap:9px}.form input,.form select,.form textarea{width:100%;padding:12px;border:1px solid var(--line);background:white;border-radius:12px}.form textarea{min-height:75px;resize:vertical}
+.modal{display:none;position:fixed;inset:0;background:#0008;z-index:30;align-items:flex-end;justify-content:center}.modal.open{display:flex}.sheet{background:var(--bg);width:min(100%,600px);padding:20px;border-radius:24px 24px 0 0;max-height:86vh;overflow:auto}.sheet h3{margin-top:0}.actions{display:flex;gap:8px;margin-top:12px}.actions button{flex:1;padding:12px;border:0;border-radius:12px}.save{background:var(--ink);color:white}.cancel{background:#ddd}
+nav{position:fixed;z-index:20;bottom:0;left:50%;transform:translateX(-50%);width:min(100%,980px);background:#fbfaf6ed;backdrop-filter:blur(16px);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(5,1fr);padding:7px 5px max(7px,env(safe-area-inset-bottom))}
+nav button{border:0;background:transparent;padding:7px 2px;color:#7d817d;font-size:10px;cursor:pointer}nav button i{display:block;font-style:normal;font-size:20px;margin-bottom:2px}nav button.active{color:#111;font-weight:800}
+.note{font-size:12px;color:var(--muted);line-height:1.6;background:#e8e1d5;padding:12px;border-radius:14px;margin-top:13px}
+@media(min-width:700px){.hero{margin-top:18px;border-radius:30px}.cards{grid-template-columns:repeat(4,1fr)}main{padding:24px}.timeline{max-width:760px}}
+
+.add,.save{background:#a85d3b}
+.expense-total{background:#87907a}
+.hero{background:#5c4a3c}
+
+
+.event.cat-flight:before{background:#9caaab}
+.event.cat-hotel:before{background:#87907a}
+.event.cat-food:before{background:#c58b68}
+.event.cat-factory:before{background:#a85d3b}
+.event.cat-transport:before{background:#8fa7a3}
+.event.cat-sourcing:before{background:#8d9474}
+.event.cat-sight:before{background:#b8c0ae}
+.event.cat-vendor:before{background:#b39b7a}
+.event.cat-drink:before{background:#c7bfae}
+.event.cat-other:before{background:#aaa39a}
+.legend{display:flex;gap:7px;flex-wrap:wrap;margin:10px 0 15px}
+.legend span{font-size:11px;background:#f2ece4;border:1px solid #e1d6c9;border-radius:999px;padding:5px 8px;display:inline-flex;align-items:center;gap:5px}
+.legend i,.account-dot{width:8px;height:8px;border-radius:50%;display:inline-block}
+.legend .flight{background:#9caaab}.legend .hotel{background:#87907a}.legend .food{background:#c58b68}.legend .factory{background:#a85d3b}.legend .transport{background:#8fa7a3}.legend .sourcing{background:#8d9474}.legend .sight{background:#b8c0ae}
+.expense-groups{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:0 0 12px}
+.group-card{background:var(--card);border:1px solid var(--line);border-radius:15px;padding:11px}
+.group-card small{display:flex;align-items:center;gap:6px;color:var(--muted)}
+.group-card b{display:block;margin-top:4px;font-size:18px}
+.account-chip{display:inline-flex;align-items:center;gap:5px;padding:3px 7px;border-radius:999px;font-size:11px;margin-right:5px}
+.acc-company{background:#ead6c9;color:#75472f}.acc-ben{background:#dce6e5;color:#536c6c}.acc-huijing{background:#e4e7d8;color:#68704f}.acc-rui{background:#e8ded0;color:#735e48}
+.dot-company{background:#a85d3b}.dot-ben{background:#9caaab}.dot-huijing{background:#87907a}.dot-rui{background:#b79a79}
+@media(min-width:700px){.expense-groups{grid-template-columns:repeat(4,1fr)}}
+
+
+.event.cat-flight{border-color:#c8d2d1;background:#f8fbfa}
+.event.cat-flight .tag{background:#dde7e6;color:#526766}
+
+
+/* V7: 航班卡片－淺灰藍 */
+.event.cat-flight{
+  background:#e7ecef !important;
+  border-color:#cbd4d9 !important;
+}
+.event.cat-flight .tag{
+  background:#d4dfe4 !important;
+  color:#53656d !important;
+}
+
+
+/* V8: 航班卡片－淺褐色 */
+.event.cat-flight{
+  background:#eee3d7 !important;
+  border-color:#dccbbb !important;
+}
+.event.cat-flight .tag{
+  background:#dfcfbf !important;
+  color:#665446 !important;
+}
+
+</style>
+</head>
+<body>
+<div class="app">
+<header class="hero">
+  <div class="kicker">DESIGN & SOURCING TRIP · 2026</div>
+  <h1>深圳 ‧ 廣州</h1>
+  <p>09.07 — 09.12 · 6 DAYS 5 NIGHTS</p>
+  <div class="stats">
+    <div class="stat"><b>6</b><span>DAYS</span></div>
+    <div class="stat"><b id="todoStat">0</b><span>待辦事項</span></div>
+    <div class="stat"><b id="expenseStat">¥0</b><span>目前支出</span></div>
+  </div>
+</header>
+
+<main>
+<section id="itinerary" class="panel active">
+ <div class="section-title"><h2>行程 Itinerary</h2><small>深圳 · 廣州 · 佛山</small></div>
+ <div class="daytabs" id="daytabs"></div>
+ <div class="legend"><span><i class="flight"></i>航班</span><span><i class="hotel"></i>住宿</span><span><i class="food"></i>餐飲</span><span><i class="factory"></i>工廠</span><span><i class="transport"></i>交通</span><span><i class="sourcing"></i>採購</span><span><i class="sight"></i>景點</span></div>
+ <div id="daycontent"></div>
+</section>
+
+<section id="expenses" class="panel">
+ <div class="toolbar"><div><h2 style="margin:0">記帳 Expenses</h2><small style="color:var(--muted)">資料儲存在此瀏覽器</small></div><button class="add" onclick="openModal('expense')">＋ 新增</button></div>
+ <div class="expense-total"><small>總支出 RMB</small><b id="expenseTotal">¥0</b><span id="twdTotal" style="font-size:12px;color:#aeb8b2"></span></div>
+<div class="expense-groups"><div class="group-card"><small><i class="account-dot dot-company"></i>公司</small><b id="sumCompany">¥0</b></div><div class="group-card"><small><i class="account-dot dot-ben"></i>BEN</small><b id="sumBen">¥0</b></div><div class="group-card"><small><i class="account-dot dot-huijing"></i>惠淨</small><b id="sumHuijing">¥0</b></div><div class="group-card"><small><i class="account-dot dot-rui"></i>RUI</small><b id="sumRui">¥0</b></div></div>
+<div class="form" style="grid-template-columns:1fr 1fr;margin-bottom:12px"><input id="rate" type="number" step=".001" placeholder="RMB→TWD 匯率" onchange="renderExpenses()"><select id="expenseFilter" onchange="renderExpenses()"><option value="">全部帳別</option><option>公司</option><option>BEN</option><option>惠淨</option><option>RUI</option></select></div>
+ <div class="list" id="expenseList"></div>
+</section>
+
+<section id="todos" class="panel">
+ <div class="toolbar"><div><h2 style="margin:0">待辦 To-do</h2><small style="color:var(--muted)">出發前 · 考察中 · 回台後</small></div><button class="add" onclick="openModal('todo')">＋ 新增</button></div>
+ <div class="list" id="todoList"></div>
+</section>
+
+<section id="shopping" class="panel">
+ <div class="toolbar"><div><h2 style="margin:0">採購 Shopping</h2><small style="color:var(--muted)">家具 · 燈具 · 鐵件 · LED</small></div><button class="add" onclick="openModal('shopping')">＋ 新增</button></div>
+ <div class="list" id="shoppingList"></div>
+</section>
+
+<section id="wishlist" class="panel">
+ <div class="toolbar"><div><h2 style="margin:0">想去 Wishlist</h2><small style="color:var(--muted)">景點 · 咖啡 · 設計店</small></div><button class="add" onclick="openModal('wishlist')">＋ 新增</button></div>
+ <div class="list" id="wishlistList"></div>
+</section>
+</main>
+
+<nav>
+<button class="active" data-panel="itinerary"><i>◷</i>行程</button>
+<button data-panel="expenses"><i>¥</i>記帳</button>
+<button data-panel="todos"><i>✓</i>待辦</button>
+<button data-panel="shopping"><i>▣</i>採購</button>
+<button data-panel="wishlist"><i>⌖</i>想去</button>
+</nav>
+</div>
+
+<div class="modal" id="modal"><div class="sheet"><h3 id="modalTitle"></h3><div id="modalForm"></div><div class="actions"><button class="cancel" onclick="closeModal()">取消</button><button class="save" onclick="saveModal()">儲存</button></div></div></div>
+
+<script>
+const itinerary=[
+ {date:"9/7（一）",city:"台北 → 深圳",events:[
+  {time:"14:50",type:"航班",name:"中華航空 CI0527｜桃園 T2 → 深圳寶安 T3",meta:"台北桃園國際機場 第二航站 → 深圳寶安國際機場 第三航站 · 16:45 抵達 · 航程約 1小時55分 · 空中巴士 A330-300 · 直飛"},
+  {time:"住宿",type:"飯店",name:"深圳南頭古城有熊飯店",meta:"廣東省深圳市南山區南頭街道南頭古城樂平街一坊22號"},
+  {time:"晚餐",type:"餐飲",name:"晚餐",meta:"待安排"}]},
+ {date:"9/8（二）",city:"深圳",events:[
+  {time:"08:00",type:"餐飲",name:"早餐",meta:"待安排"},
+  {time:"09:00",type:"工廠",name:"家具工廠 · LED 螢幕",meta:"深圳市寶安區"},
+  {time:"景點",type:"景點",name:"南頭古城",meta:"深圳市南山區"},
+  {time:"景點",type:"景點",name:"喜茶 LAB（深圳歡樂海岸店）",meta:"深圳市南山區 · 深灣地鐵站"},
+  {time:"景點",type:"景點",name:"當代藝術與城市規劃館",meta:"深圳市福田區 · 少年宮地鐵站 A2 口步行約 130m"},
+  {time:"住宿",type:"飯店",name:"深圳南頭古城有熊飯店",meta:"廣東省深圳市南山區南頭街道南頭古城樂平街一坊22號"}]},
+ {date:"9/9（三）",city:"深圳 → 廣州",events:[
+  {time:"08:00",type:"餐飲",name:"早餐",meta:"待安排"},
+  {time:"12:00",type:"交通",name:"深圳 → 廣州",meta:"移動至廣州"},
+  {time:"下午",type:"採購",name:"羅浮宮 Louvre Furniture Mall 考察",meta:"家具商場／設計採購考察"},
+  {time:"17:30",type:"廠商",name:"晚餐｜與廠商熟悉及了解需求",meta:"廣州市番禺區／佛山市"},
+  {time:"住宿",type:"飯店",name:"廣州南站東廣場亞朵酒店",meta:"廣東省廣州市番禺區石壁街道石興大道南288號展創商務中心1號樓 · 廣州南站"}]},
+ {date:"9/10（四）",city:"佛山 · 中山古鎮",events:[
+  {time:"07:30",type:"餐飲",name:"飯店早餐",meta:"廣州南站東廣場亞朵酒店"},
+  {time:"09:00",type:"工廠",name:"家具工廠｜佛山企業家大廈",meta:"佛山市順德區 · 7號草綠線／東平站"},
+  {time:"下午",type:"採購",name:"鐵件 · 裝飾件考察",meta:"下午考察"},
+  {time:"晚餐",type:"餐飲",name:"晚餐",meta:"待安排"},
+  {time:"住宿",type:"飯店",name:"廣州南站東廣場亞朵酒店",meta:"廣東省廣州市番禺區石壁街道石興大道南288號展創商務中心1號樓"}]},
+ {date:"9/11（五）",city:"佛山 · 廣州",events:[
+  {time:"07:30",type:"餐飲",name:"飯店早餐",meta:"廣州南站東廣場亞朵酒店"},
+  {time:"09:00",type:"工廠",name:"家具工廠｜佛山企業家大廈",meta:"佛山市順德區 · 7號草綠線／東平站"},
+  {time:"13:00–17:00",type:"採購",name:"古鎮｜燈具 · LED 考察",meta:"燈具與 LED 採購考察"},
+  {time:"晚餐",type:"餐飲",name:"廣州市晚餐",meta:"待安排"},
+  {time:"住宿",type:"飯店",name:"廣州南站東廣場亞朵酒店",meta:"廣東省廣州市番禺區石壁街道石興大道南288號展創商務中心1號樓"}]},
+ {date:"9/12（六）",city:"廣州 → 台北",events:[
+  {time:"08:00",type:"餐飲",name:"早餐",meta:"飯店早餐"},
+  {time:"退房",type:"飯店",name:"廣州南站東廣場亞朵酒店退房",meta:"廣東省廣州市番禺區石壁街道石興大道南288號展創商務中心1號樓 · 廣州南站"},
+  {time:"17:30",type:"航班",name:"中華航空 CI0522｜廣州白雲 T2 → 桃園 T2",meta:"廣州白雲國際機場 第二航站 → 台北桃園機場 第二航站 · 19:40 抵達 · 航程約 2小時10分 · 空中巴士 A330-300 · 直飛"}]}
+];
+
+const defaults={
+ todos:[
+  {name:"確認廠商接送與集合資訊",group:"出發前",done:false},
+  {name:"整理考察重點與詢價項目",group:"出發前",done:false},
+  {name:"現場索取報價／名片／型錄",group:"考察中",done:false},
+  {name:"回台整理廠商與樣品資料",group:"回台後",done:false}],
+ shopping:[
+  {name:"家具",detail:"尺寸／材質／MOQ／報價／運費／是否拿樣",done:false},
+  {name:"鐵件・裝飾件",detail:"廠商／材質／表面處理／報價",done:false},
+  {name:"燈具",detail:"規格／色溫／認證／報價",done:false},
+  {name:"LED 螢幕",detail:"規格／尺寸／控制系統／報價",done:false}],
+ wishlist:[
+  {name:"南頭古城",detail:"深圳市南山區",done:false},
+  {name:"喜茶 LAB（深圳歡樂海岸店）",detail:"深圳市南山區 · 深灣站",done:false},
+  {name:"當代藝術與城市規劃館",detail:"深圳市福田區 · 少年宮站 A2",done:false}]
+};
+let activeDay=0, modalType="";
+const get=(k,d=[])=>JSON.parse(localStorage.getItem("sg_"+k)||JSON.stringify(d));
+const set=(k,v)=>localStorage.setItem("sg_"+k,JSON.stringify(v));
+["todos","shopping","wishlist"].forEach(k=>{if(!localStorage.getItem("sg_"+k))set(k,defaults[k])});
+if(!localStorage.getItem("sg_expenses"))set("expenses",[]);
+if(!localStorage.getItem("sg_rate"))localStorage.setItem("sg_rate","4.3");
+document.getElementById("rate").value=localStorage.getItem("sg_rate");
+
+
+function catClass(type){
+ const m={"航班":"cat-flight","飯店":"cat-hotel","餐飲":"cat-food","工廠":"cat-factory","交通":"cat-transport","採購":"cat-sourcing","景點":"cat-sight","廠商":"cat-vendor","飲品":"cat-drink"};
+ return m[type]||"cat-other";
+}
+function accountClass(a){
+ return {"公司":"acc-company","BEN":"acc-ben","惠淨":"acc-huijing","RUI":"acc-rui"}[a]||"";
+}
+
+function renderDays(){
+ const tabs=document.getElementById("daytabs");
+ tabs.innerHTML=itinerary.map((d,i)=>`<button class="daytab ${i===activeDay?'active':''}" onclick="activeDay=${i};renderDays()">DAY ${i+1}<br><small>${d.date}</small></button>`).join("");
+ const d=itinerary[activeDay];
+ document.getElementById("daycontent").innerHTML=`<div class="dayhead"><b>DAY ${activeDay+1}</b><span>${d.date} · ${d.city}</span></div><div class="timeline">${d.events.map(e=>`<div class="event ${catClass(e.type)}"><div class="time">${e.time}</div><h3>${e.name}</h3><div class="meta">${e.meta}</div><span class="tag">${e.type}</span></div>`).join("")}</div>`;
+}
+function esc(s){return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
+function renderSimple(type,id){
+ let a=get(type);
+ document.getElementById(id).innerHTML=a.length?a.map((x,i)=>`<div class="item ${x.done?'done':''}"><input class="check" type="checkbox" ${x.done?'checked':''} onchange="toggle('${type}',${i})"><div class="itemtext"><b>${esc(x.name)}</b><small>${esc(x.group||x.detail||"")}</small></div><button class="del" onclick="removeItem('${type}',${i})">×</button></div>`).join(""):`<div class="note">目前沒有項目，按「＋ 新增」開始記錄。</div>`;
+}
+function toggle(t,i){let a=get(t);a[i].done=!a[i].done;set(t,a);renderAll()}
+function removeItem(t,i){let a=get(t);a.splice(i,1);set(t,a);renderAll()}
+function renderExpenses(){
+ localStorage.setItem("sg_rate",document.getElementById("rate").value||"0");
+ const a=get("expenses"), f=document.getElementById("expenseFilter").value;
+ const shown=f?a.filter(x=>(x.account||"公司")===f):a;
+ const total=a.reduce((s,x)=>s+(+x.amount||0),0),rate=+document.getElementById("rate").value||0;
+ document.getElementById("expenseTotal").textContent="¥"+total.toLocaleString();
+ document.getElementById("expenseStat").textContent="¥"+Math.round(total).toLocaleString();
+ document.getElementById("twdTotal").textContent=rate?`約 NT$ ${Math.round(total*rate).toLocaleString()} · 匯率 ${rate}`:"";
+ const sums={"公司":0,"BEN":0,"惠淨":0,"RUI":0};
+ a.forEach(x=>{const k=x.account||"公司"; if(k in sums)sums[k]+=+x.amount||0});
+ document.getElementById("sumCompany").textContent="¥"+sums["公司"].toLocaleString();
+ document.getElementById("sumBen").textContent="¥"+sums["BEN"].toLocaleString();
+ document.getElementById("sumHuijing").textContent="¥"+sums["惠淨"].toLocaleString();
+ document.getElementById("sumRui").textContent="¥"+sums["RUI"].toLocaleString();
+ document.getElementById("expenseList").innerHTML=shown.length?shown.map((x)=>{let i=a.indexOf(x),acc=x.account||"公司";return `<div class="item"><div class="itemtext"><b>${esc(x.name)} · ¥${(+x.amount).toLocaleString()}</b><small><span class="account-chip ${accountClass(acc)}">${esc(acc)}</span>${esc(x.date)} · ${esc(x.category)}${x.payer?" · 付款："+esc(x.payer):""}${x.note?" · "+esc(x.note):""}</small></div><button class="del" onclick="removeItem('expenses',${i})">×</button></div>`}).join(""):`<div class="note">還沒有支出紀錄。</div>`;
+}
+function renderAll(){renderDays();renderExpenses();renderSimple("todos","todoList");renderSimple("shopping","shoppingList");renderSimple("wishlist","wishlistList");document.getElementById("todoStat").textContent=get("todos").filter(x=>!x.done).length}
+document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{document.querySelectorAll("nav button").forEach(x=>x.classList.remove("active"));b.classList.add("active");document.querySelectorAll(".panel").forEach(x=>x.classList.remove("active"));document.getElementById(b.dataset.panel).classList.add("active")});
+
+function openModal(type){
+ modalType=type; const f=document.getElementById("modalForm"),title=document.getElementById("modalTitle");
+ if(type==="expense"){title.textContent="新增支出";f.innerHTML=`<div class="form"><input id="m_date" type="date" value="2026-09-07"><input id="m_name" placeholder="項目"><input id="m_amount" type="number" step=".01" placeholder="人民幣金額"><select id="m_account"><option>公司</option><option>BEN</option><option>惠淨</option><option>RUI</option></select><select id="m_category"><option>餐飲</option><option>交通</option><option>住宿</option><option>採購</option><option>其他</option></select><input id="m_payer" placeholder="付款人（選填）"><textarea id="m_note" placeholder="備註"></textarea></div>`}
+ if(type==="todo"){title.textContent="新增待辦";f.innerHTML=`<div class="form"><input id="m_name" placeholder="待辦事項"><select id="m_group"><option>出發前</option><option>考察中</option><option>回台後</option></select></div>`}
+ if(type==="shopping"){title.textContent="新增採購";f.innerHTML=`<div class="form"><input id="m_name" placeholder="品項"><textarea id="m_detail" placeholder="廠商／尺寸／材質／MOQ／報價／運費／樣品…"></textarea></div>`}
+ if(type==="wishlist"){title.textContent="新增想去";f.innerHTML=`<div class="form"><input id="m_name" placeholder="地點名稱"><textarea id="m_detail" placeholder="城市／地址／想去原因／營業時間…"></textarea></div>`}
+ document.getElementById("modal").classList.add("open");
+}
+function closeModal(){document.getElementById("modal").classList.remove("open")}
+function saveModal(){
+ let a=get(modalType);
+ if(modalType==="expense")a.push({date:m_date.value,name:m_name.value||"未命名",amount:+m_amount.value||0,account:m_account.value,category:m_category.value,payer:m_payer.value,note:m_note.value});
+ if(modalType==="todo")a.push({name:m_name.value||"未命名",group:m_group.value,done:false});
+ if(modalType==="shopping")a.push({name:m_name.value||"未命名",detail:m_detail.value,done:false});
+ if(modalType==="wishlist")a.push({name:m_name.value||"未命名",detail:m_detail.value,done:false});
+ set(modalType,a);closeModal();renderAll();
+}
+renderAll();
+</script>
+</body></html>
