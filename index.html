@@ -951,24 +951,30 @@ function renderExpenses(){
  storageSetRaw("sg_rate",document.getElementById("rate").value||"0");
  const a=get("expenses"), f=document.getElementById("expenseFilter").value;
  const shown=f?a.filter(x=>(x.account||"公司")===f):a;
- const total=a.reduce((s,x)=>s+(+x.amount||0),0),rate=+document.getElementById("rate").value||0;
- document.getElementById("expenseTotal").textContent="¥"+total.toLocaleString();
- document.getElementById("expenseStat").textContent="¥"+Math.round(total).toLocaleString();
- document.getElementById("twdTotal").textContent=rate?`約 NT$ ${Math.round(total*rate).toLocaleString()} · 匯率 ${rate}`:"";
+ const rate=+document.getElementById("rate").value||0;
+ const currency=x=>x.currency||"CNY";
+ const twdValue=x=>currency(x)==="TWD"?(+x.amount||0):(+x.amount||0)*rate;
+ const rmbTotal=a.filter(x=>currency(x)==="CNY").reduce((s,x)=>s+(+x.amount||0),0);
+ const twdDirect=a.filter(x=>currency(x)==="TWD").reduce((s,x)=>s+(+x.amount||0),0);
+ const twdTotal=a.reduce((s,x)=>s+twdValue(x),0);
+ const fmt=n=>Math.round(n||0).toLocaleString();
+ document.getElementById("expenseTotal").textContent="NT$"+fmt(twdTotal);
+ document.getElementById("expenseStat").textContent="NT$"+fmt(twdTotal);
+ document.getElementById("twdTotal").textContent=`人民幣 ¥${rmbTotal.toLocaleString()} · 台幣 NT$${fmt(twdDirect)}${rate?` · RMB匯率 ${rate}`:""}`;
  const sums={"公司":0,"BEN":0,"惠淨":0,"RUI":0};
- a.forEach(x=>{const k=x.account||"公司"; if(k in sums)sums[k]+=+x.amount||0});
- document.getElementById("sumCompany").textContent="¥"+sums["公司"].toLocaleString();
- document.getElementById("sumBen").textContent="¥"+sums["BEN"].toLocaleString();
- document.getElementById("sumHuijing").textContent="¥"+sums["惠淨"].toLocaleString();
- document.getElementById("sumRui").textContent="¥"+sums["RUI"].toLocaleString();
- document.getElementById("expenseList").innerHTML=shown.length?shown.map((x)=>{let i=a.indexOf(x),acc=x.account||"公司";return `<div class="item"><div class="itemtext"><b>${esc(x.name)} · ¥${(+x.amount).toLocaleString()}</b><small><span class="account-chip ${accountClass(acc)}">${esc(acc)}</span>${esc(x.date)} · ${esc(x.category)}${x.payer?" · 付款："+esc(x.payer):""}${x.note?" · "+esc(x.note):""}</small></div><button class="del" onclick="removeItem('expenses',${i})">×</button></div>`}).join(""):`<div class="note">還沒有支出紀錄。</div>`;
+ a.forEach(x=>{const k=x.account||"公司"; if(k in sums)sums[k]+=twdValue(x)});
+ document.getElementById("sumCompany").textContent="NT$"+fmt(sums["公司"]);
+ document.getElementById("sumBen").textContent="NT$"+fmt(sums["BEN"]);
+ document.getElementById("sumHuijing").textContent="NT$"+fmt(sums["惠淨"]);
+ document.getElementById("sumRui").textContent="NT$"+fmt(sums["RUI"]);
+ document.getElementById("expenseList").innerHTML=shown.length?shown.map((x)=>{let i=a.indexOf(x),acc=x.account||"公司",c=currency(x),money=c==="TWD"?`NT$${(+x.amount||0).toLocaleString()}`:`¥${(+x.amount||0).toLocaleString()}`,converted=c==="CNY"&&rate?` · 約 NT$${fmt(twdValue(x))}`:"";return `<div class="item"><div class="itemtext"><b>${esc(x.name)} · ${money}</b><small><span class="account-chip ${accountClass(acc)}">${esc(acc)}</span>${esc(x.date)} · ${esc(x.category)}${converted}${x.payer?" · 付款："+esc(x.payer):""}${x.note?" · "+esc(x.note):""}</small></div><button class="del" onclick="removeItem('expenses',${i})">×</button></div>`}).join(""):`<div class="note">還沒有支出紀錄。</div>`;
 }
 function renderAll(){renderDays();renderExpenses();renderSimple("todos","todoList");renderSimple("shopping","shoppingList");renderSimple("wishlist","wishlistList");document.getElementById("todoStat").textContent=get("todos").filter(x=>!x.done).length}
 document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{document.querySelectorAll("nav button").forEach(x=>x.classList.remove("active"));b.classList.add("active");document.querySelectorAll(".panel").forEach(x=>x.classList.remove("active"));document.getElementById(b.dataset.panel).classList.add("active")});
 
 function openModal(type){
  modalType=type; const f=document.getElementById("modalForm"),title=document.getElementById("modalTitle");
- if(type==="expense"){title.textContent="新增支出";f.innerHTML=`<div class="form"><input id="m_date" type="date" value="2026-09-07"><input id="m_name" placeholder="項目"><input id="m_amount" type="number" step=".01" placeholder="人民幣金額"><select id="m_account"><option>公司</option><option>BEN</option><option>惠淨</option><option>RUI</option></select><select id="m_category"><option>餐飲</option><option>交通</option><option>住宿</option><option>採購</option><option>其他</option></select><input id="m_payer" placeholder="付款人（選填）"><textarea id="m_note" placeholder="備註"></textarea></div>`}
+ if(type==="expense"){title.textContent="新增支出";f.innerHTML=`<div class="form"><input id="m_date" type="date" value="2026-09-07"><input id="m_name" placeholder="項目"><select id="m_currency"><option value="CNY">人民幣 RMB ¥</option><option value="TWD">台幣 TWD NT$</option></select><input id="m_amount" type="number" step=".01" inputmode="decimal" placeholder="金額"><select id="m_account"><option>公司</option><option>BEN</option><option>惠淨</option><option>RUI</option></select><select id="m_category"><option>餐飲</option><option>交通</option><option>住宿</option><option>採購</option><option>其他</option></select><input id="m_payer" placeholder="付款人（選填）"><textarea id="m_note" placeholder="備註"></textarea></div>`}
  if(type==="todo"){title.textContent="新增待辦";f.innerHTML=`<div class="form"><input id="m_name" placeholder="待辦事項"><select id="m_group"><option>出發前</option><option>考察中</option><option>回台後</option></select></div>`}
  if(type==="shopping"){title.textContent="新增採購";f.innerHTML=`<div class="form"><input id="m_name" placeholder="品項"><textarea id="m_detail" placeholder="廠商／尺寸／材質／MOQ／報價／運費／樣品…"></textarea></div>`}
  if(type==="wishlist"){title.textContent="新增想去";f.innerHTML=`<div class="form"><input id="m_name" placeholder="地點名稱"><textarea id="m_detail" placeholder="城市／地址／想去原因／營業時間…"></textarea></div>`}
@@ -1001,6 +1007,7 @@ function saveModal(){
       date:field("m_date"),
       name:field("m_name").trim()||"未命名",
       amount:Number(field("m_amount"))||0,
+      currency:field("m_currency")||"CNY",
       account:field("m_account")||"公司",
       category:field("m_category")||"其他",
       payer:field("m_payer").trim(),
