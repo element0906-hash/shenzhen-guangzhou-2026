@@ -769,6 +769,20 @@ button,.add,.save,.cancel,.del,nav button{
   .weather-wrap{margin:10px 12px 12px!important;padding:9px 10px!important}
 }
 
+
+/* V27: expense splitting */
+.split-summary{background:var(--card);border:1px solid var(--line);border-radius:17px;padding:13px;margin:0 0 12px}
+.split-summary-head{display:flex;justify-content:space-between;gap:8px;align-items:baseline;margin-bottom:8px}
+.split-summary-head b{font-size:14px}.split-summary-head small{font-size:10px;color:var(--muted)}
+.settle-row{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:7px 0;border-top:1px solid #eee6dc;font-size:12px}
+.settle-row:first-child{border-top:0}.settle-row b{font-size:12px}.settle-empty{font-size:11px;color:var(--muted);padding:5px 0}
+.split-box{border:1px solid var(--line);border-radius:14px;padding:11px;background:#faf6ef}
+.split-box-title{font-size:12px;font-weight:700;margin-bottom:4px}.split-box-note{font-size:10px;color:var(--muted);margin-bottom:8px;line-height:1.4}
+.split-people{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+.split-person{display:flex!important;align-items:center;gap:7px;border:1px solid #e3d9ce;border-radius:11px;padding:8px 9px;background:white;font-size:12px;min-height:42px!important}
+.split-person input{width:18px!important;min-width:18px!important;max-width:18px!important;height:18px!important;min-height:18px!important;margin:0!important}
+.split-badge{display:inline-block;margin-top:5px;padding:4px 7px;border-radius:8px;background:#eee6da;color:#675649;font-size:10px}
+
 </style>
 </head>
 <body>
@@ -811,8 +825,12 @@ button,.add,.save,.cancel,.del,nav button{
 
 <section id="expenses" class="panel">
  <div class="toolbar"><div><h2 style="margin:0">記帳 Expenses</h2><small style="color:var(--muted)">資料儲存在此瀏覽器</small></div><button type="button" class="add" onclick="openModal('expense')">＋ 新增</button></div>
- <div class="expense-total"><small>總支出 RMB</small><b id="expenseTotal">¥0</b><span id="twdTotal" style="font-size:12px;color:#aeb8b2"></span></div>
+ <div class="expense-total"><small>總支出（折合台幣）</small><b id="expenseTotal">¥0</b><span id="twdTotal" style="font-size:12px;color:#aeb8b2"></span></div>
 <div class="expense-groups"><div class="group-card"><small><i class="account-dot dot-company"></i>公司</small><b id="sumCompany">¥0</b></div><div class="group-card"><small><i class="account-dot dot-ben"></i>BEN</small><b id="sumBen">¥0</b></div><div class="group-card"><small><i class="account-dot dot-huijing"></i>惠淨</small><b id="sumHuijing">¥0</b></div><div class="group-card"><small><i class="account-dot dot-rui"></i>RUI</small><b id="sumRui">¥0</b></div></div>
+<div class="split-summary">
+  <div class="split-summary-head"><b>分攤結算</b><small>依目前匯率換算台幣</small></div>
+  <div id="splitSettlement"></div>
+</div>
 <div class="form" style="grid-template-columns:1fr 1fr;margin-bottom:12px"><input id="rate" type="number" step=".001" placeholder="RMB→TWD 匯率" onchange="renderExpenses()"><select id="expenseFilter" onchange="renderExpenses()"><option value="">全部帳別</option><option>公司</option><option>BEN</option><option>惠淨</option><option>RUI</option></select></div>
  <div class="list" id="expenseList"></div>
 </section>
@@ -870,22 +888,22 @@ const itinerary=[
   {time:"12:00",type:"交通",name:"深圳 → 廣州",meta:"移動至廣州"},
   {time:"下午",type:"採購",name:"羅浮宮 Louvre Furniture Mall 考察",meta:"家具商場／設計採購考察"},
   {time:"18:00",type:"廠商",name:"晚餐｜與廠商熟悉及了解需求",meta:"廣州市番禺區／佛山市"},
-  {time:"住宿",type:"飯店",name:"廣州南站東廣場亞朵酒店",meta:"廣東省廣州市番禺區石壁街道石興大道南288號展創商務中心1號樓 · 廣州南站"}]},
+  {time:"住宿",type:"飯店",name:"廣州南全季酒店",meta:"广东省广州市番禺区石壁街双涌路251号万科世博汇A3号楼"}]},
  {date:"9/10（四）",city:"佛山 · 中山古鎮",events:[
-  {time:"07:30",type:"餐飲",name:"飯店早餐",meta:"廣州南站東廣場亞朵酒店"},
+  {time:"07:30",type:"餐飲",name:"飯店早餐",meta:"廣州南全季酒店"},
   {time:"09:00",type:"工廠",name:"家具工廠｜佛山企業家大廈",meta:"佛山市順德區 · 7號草綠線／東平站"},
   {time:"13:00–17:00",type:"採購",name:"鐵件 · 裝飾件考察",meta:"下午考察"},
   {time:"晚餐",type:"餐飲",name:"廣州走走．晚餐",meta:"廣州自由走走／晚餐"},
-  {time:"住宿",type:"飯店",name:"廣州南站東廣場亞朵酒店",meta:"廣東省廣州市番禺區石壁街道石興大道南288號展創商務中心1號樓"}]},
+  {time:"住宿",type:"飯店",name:"廣州南全季酒店",meta:"广东省广州市番禺区石壁街双涌路251号万科世博汇A3号楼"}]},
  {date:"9/11（五）",city:"佛山 · 廣州",events:[
-  {time:"07:30",type:"餐飲",name:"飯店早餐",meta:"廣州南站東廣場亞朵酒店"},
+  {time:"07:30",type:"餐飲",name:"飯店早餐",meta:"廣州南全季酒店"},
   {time:"09:00",type:"工廠",name:"家具工廠｜佛山企業家大廈",meta:"佛山市順德區 · 7號草綠線／東平站"},
   {time:"13:00–17:00",type:"採購",name:"古鎮｜燈具 · LED 考察",meta:"燈具與 LED 採購考察"},
   {time:"晚餐",type:"餐飲",name:"廣州走走．晚餐",meta:"廣州自由走走／晚餐"},
-  {time:"住宿",type:"飯店",name:"廣州南站東廣場亞朵酒店",meta:"廣東省廣州市番禺區石壁街道石興大道南288號展創商務中心1號樓"}]},
+  {time:"住宿",type:"飯店",name:"廣州南全季酒店",meta:"广东省广州市番禺区石壁街双涌路251号万科世博汇A3号楼"}]},
  {date:"9/12（六）",city:"廣州 → 台北",events:[
   {time:"08:00",type:"餐飲",name:"早餐",meta:"飯店早餐"},
-  {time:"退房",type:"飯店",name:"廣州南站東廣場亞朵酒店退房",meta:"廣東省廣州市番禺區石壁街道石興大道南288號展創商務中心1號樓 · 廣州南站"},
+  {time:"退房",type:"飯店",name:"廣州南全季酒店退房",meta:"广东省广州市番禺区石壁街双涌路251号万科世博汇A3号楼"},
   {time:"17:30",type:"航班",name:"中華航空 CI0522｜廣州白雲 T2 → 桃園 T2",meta:"廣州白雲國際機場 第二航站 → 台北桃園機場 第二航站 · 19:40 抵達 · 航程約 2小時10分 · 空中巴士 A330-300 · 直飛"}]}
 ];
 
@@ -1203,27 +1221,94 @@ function renderExpenses(){
  const rate=+document.getElementById("rate").value||0;
  const currency=x=>x.currency||"CNY";
  const twdValue=x=>currency(x)==="TWD"?(+x.amount||0):(+x.amount||0)*rate;
- const rmbTotal=a.filter(x=>currency(x)==="CNY").reduce((s,x)=>s+(+x.amount||0),0);
- const twdDirect=a.filter(x=>currency(x)==="TWD").reduce((s,x)=>s+(+x.amount||0),0);
- const twdTotal=a.reduce((s,x)=>s+twdValue(x),0);
  const fmt=n=>Math.round(n||0).toLocaleString();
+ const rmbTotal=a.filter(x=>currency(x)==="CNY").reduce((sum,x)=>sum+(+x.amount||0),0);
+ const twdDirect=a.filter(x=>currency(x)==="TWD").reduce((sum,x)=>sum+(+x.amount||0),0);
+ const twdTotal=a.reduce((sum,x)=>sum+twdValue(x),0);
+
  document.getElementById("expenseTotal").textContent="NT$"+fmt(twdTotal);
  document.getElementById("expenseStat").textContent="NT$"+fmt(twdTotal);
  document.getElementById("twdTotal").textContent=`人民幣 ¥${rmbTotal.toLocaleString()} · 台幣 NT$${fmt(twdDirect)}${rate?` · RMB匯率 ${rate}`:""}`;
+
  const sums={"公司":0,"BEN":0,"惠淨":0,"RUI":0};
  a.forEach(x=>{const k=x.account||"公司"; if(k in sums)sums[k]+=twdValue(x)});
  document.getElementById("sumCompany").textContent="NT$"+fmt(sums["公司"]);
  document.getElementById("sumBen").textContent="NT$"+fmt(sums["BEN"]);
  document.getElementById("sumHuijing").textContent="NT$"+fmt(sums["惠淨"]);
  document.getElementById("sumRui").textContent="NT$"+fmt(sums["RUI"]);
- document.getElementById("expenseList").innerHTML=shown.length?shown.map((x)=>{let i=a.indexOf(x),acc=x.account||"公司",c=currency(x),money=c==="TWD"?`NT$${(+x.amount||0).toLocaleString()}`:`¥${(+x.amount||0).toLocaleString()}`,converted=c==="CNY"&&rate?` · 約 NT$${fmt(twdValue(x))}`:"";return `<div class="item"><div class="itemtext"><b>${esc(x.name)} · ${money}</b><small><span class="account-chip ${accountClass(acc)}">${esc(acc)}</span>${esc(x.date)} · ${esc(x.category)}${converted}${x.payer?" · 付款："+esc(x.payer):""}${x.note?" · "+esc(x.note):""}</small></div><button class="del" onclick="removeItem('expenses',${i})">×</button></div>`}).join(""):`<div class="note">還沒有支出紀錄。</div>`;
+
+ // Settlement: positive = should receive, negative = should pay (converted to TWD).
+ const net={"公司":0,"BEN":0,"惠淨":0,"RUI":0};
+ a.forEach(x=>{
+   const payer=x.account||"公司";
+   const people=Array.isArray(x.splitParticipants)?x.splitParticipants.filter(p=>p in net):[];
+   if(people.length<2 || !(payer in net)) return;
+   const total=twdValue(x);
+   const share=total/people.length;
+   net[payer]+=total;
+   people.forEach(p=>net[p]-=share);
+ });
+ const creditors=Object.entries(net).filter(([,v])=>v>0.5).map(([name,value])=>({name,value})).sort((a,b)=>b.value-a.value);
+ const debtors=Object.entries(net).filter(([,v])=>v<-0.5).map(([name,value])=>({name,value:-value})).sort((a,b)=>b.value-a.value);
+ const settlements=[];
+ let ci=0,di=0;
+ while(ci<creditors.length && di<debtors.length){
+   const amount=Math.min(creditors[ci].value,debtors[di].value);
+   if(amount>0.5) settlements.push({from:debtors[di].name,to:creditors[ci].name,amount});
+   creditors[ci].value-=amount;
+   debtors[di].value-=amount;
+   if(creditors[ci].value<=0.5) ci++;
+   if(debtors[di].value<=0.5) di++;
+ }
+ const settleEl=document.getElementById("splitSettlement");
+ if(settleEl){
+   settleEl.innerHTML=settlements.length
+     ? settlements.map(x=>`<div class="settle-row"><span><b>${esc(x.from)}</b> → ${esc(x.to)}</span><b>NT$${fmt(x.amount)}</b></div>`).join("")
+     : `<div class="settle-empty">目前沒有需要結算的分攤費用。</div>`;
+ }
+
+ document.getElementById("expenseList").innerHTML=shown.length?shown.map((x)=>{
+   let i=a.indexOf(x),acc=x.account||"公司",c=currency(x);
+   const money=c==="TWD"?`NT$${(+x.amount||0).toLocaleString()}`:`¥${(+x.amount||0).toLocaleString()}`;
+   const converted=c==="CNY"&&rate?` · 約 NT$${fmt(twdValue(x))}`:"";
+   const people=Array.isArray(x.splitParticipants)?x.splitParticipants:[];
+   let splitInfo="";
+   if(people.length>=2){
+     const each=(+x.amount||0)/people.length;
+     const unit=c==="TWD"?"NT$":"¥";
+     splitInfo=`<span class="split-badge">平均分攤：${people.map(esc).join("／")} · 每人 ${unit}${Math.round(each*100)/100}</span>`;
+   }
+   return `<div class="item"><div class="itemtext">
+     <b>${esc(x.name)} · ${money}</b>
+     <small><span class="account-chip ${accountClass(acc)}">${esc(acc)} 付款</span>${esc(x.date)} · ${esc(x.category)}${converted}${x.note?" · "+esc(x.note):""}</small>
+     ${splitInfo}
+   </div><button class="del" onclick="removeItem('expenses',${i})">×</button></div>`;
+ }).join(""):`<div class="note">還沒有支出紀錄。</div>`;
 }
 function renderAll(){renderDays();renderExpenses();renderSimple("todos","todoList");renderSimple("shopping","shoppingList");renderSimple("wishlist","wishlistList");document.getElementById("todoStat").textContent=get("todos").filter(x=>!x.done).length}
 document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{document.querySelectorAll("nav button").forEach(x=>x.classList.remove("active"));b.classList.add("active");document.querySelectorAll(".panel").forEach(x=>x.classList.remove("active"));document.getElementById(b.dataset.panel).classList.add("active")});
 
 function openModal(type){
  modalType=type; const f=document.getElementById("modalForm"),title=document.getElementById("modalTitle");
- if(type==="expense"){title.textContent="新增支出";f.innerHTML=`<div class="form"><input id="m_date" type="date" value="2026-09-07"><input id="m_name" placeholder="項目"><select id="m_currency"><option value="CNY">人民幣 RMB ¥</option><option value="TWD">台幣 TWD NT$</option></select><input id="m_amount" type="number" step=".01" inputmode="decimal" placeholder="金額"><select id="m_account"><option>公司</option><option>BEN</option><option>惠淨</option><option>RUI</option></select><select id="m_category"><option>餐飲</option><option>交通</option><option>住宿</option><option>採購</option><option>其他</option></select><input id="m_payer" placeholder="付款人（選填）"><textarea id="m_note" placeholder="備註"></textarea></div>`}
+ if(type==="expense"){title.textContent="新增支出";f.innerHTML=`<div class="form">
+<input id="m_date" type="date" value="2026-09-07">
+<input id="m_name" placeholder="項目">
+<select id="m_currency"><option value="CNY">人民幣 RMB ¥</option><option value="TWD">台幣 TWD NT$</option></select>
+<input id="m_amount" type="number" step=".01" inputmode="decimal" placeholder="金額">
+<select id="m_account"><option>公司</option><option>BEN</option><option>惠淨</option><option>RUI</option></select>
+<select id="m_category"><option>餐飲</option><option>交通</option><option>住宿</option><option>採購</option><option>其他</option></select>
+<div class="split-box">
+  <div class="split-box-title">平均分攤給誰？</div>
+  <div class="split-box-note">不需分攤可全部不勾；若要分攤，請勾「實際共同分攤的人」，包含付款人本人。</div>
+  <div class="split-people">
+    <label class="split-person"><input type="checkbox" name="m_split" value="公司">公司</label>
+    <label class="split-person"><input type="checkbox" name="m_split" value="BEN">BEN</label>
+    <label class="split-person"><input type="checkbox" name="m_split" value="惠淨">惠淨</label>
+    <label class="split-person"><input type="checkbox" name="m_split" value="RUI">RUI</label>
+  </div>
+</div>
+<textarea id="m_note" placeholder="備註"></textarea>
+</div>`}
  if(type==="todo"){title.textContent="新增待辦";f.innerHTML=`<div class="form"><input id="m_name" placeholder="待辦事項"><select id="m_group"><option>出發前</option><option>考察中</option><option>回台後</option></select></div>`}
  if(type==="shopping"){title.textContent="新增採購";f.innerHTML=`<div class="form"><input id="m_name" placeholder="品項"><textarea id="m_detail" placeholder="廠商／尺寸／材質／MOQ／報價／運費／樣品…"></textarea></div>`}
  if(type==="wishlist"){title.textContent="新增想去";f.innerHTML=`<div class="form"><input id="m_name" placeholder="地點名稱"><textarea id="m_detail" placeholder="城市／地址／想去原因／營業時間…"></textarea></div>`}
@@ -1259,7 +1344,7 @@ function saveModal(){
       currency:field("m_currency")||"CNY",
       account:field("m_account")||"公司",
       category:field("m_category")||"其他",
-      payer:field("m_payer").trim(),
+      splitParticipants:Array.from(document.querySelectorAll('input[name="m_split"]:checked')).map(el=>el.value),
       note:field("m_note").trim()
     });
   }else if(modalType==="todo"){
