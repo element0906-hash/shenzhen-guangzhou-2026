@@ -783,6 +783,18 @@ button,.add,.save,.cancel,.del,nav button{
 .split-person input{width:18px!important;min-width:18px!important;max-width:18px!important;height:18px!important;min-height:18px!important;margin:0!important}
 .split-badge{display:inline-block;margin-top:5px;padding:4px 7px;border-radius:8px;background:#eee6da;color:#675649;font-size:10px}
 
+
+/* V29: advanced settlement */
+.company-claim{background:#f3eee7}
+.claim-row,.settle-row{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:7px 0;border-top:1px solid #e8dfd4;font-size:12px}
+.claim-row:first-child,.settle-row:first-child{border-top:0}
+.claim-row b,.settle-row b{font-size:12px}
+.expense-fields-label{font-size:10px;color:var(--muted);margin:-2px 0 2px}
+.expense-meta-line{display:flex;flex-wrap:wrap;gap:5px;margin-top:4px}
+.expense-pill{display:inline-flex;align-items:center;padding:3px 7px;border-radius:999px;background:#eee6da;color:#66564a;font-size:10px}
+.expense-pill.payer{background:#e4e8e3;color:#59635a}
+.expense-pill.company{background:#ead6c9;color:#75472f}
+
 </style>
 </head>
 <body>
@@ -826,12 +838,16 @@ button,.add,.save,.cancel,.del,nav button{
 <section id="expenses" class="panel">
  <div class="toolbar"><div><h2 style="margin:0">記帳 Expenses</h2><small style="color:var(--muted)">資料儲存在此瀏覽器</small></div><button type="button" class="add" onclick="openModal('expense')">＋ 新增</button></div>
  <div class="expense-total"><small>總支出（折合台幣）</small><b id="expenseTotal">¥0</b><span id="twdTotal" style="font-size:12px;color:#aeb8b2"></span></div>
-<div class="expense-groups"><div class="group-card"><small><i class="account-dot dot-company"></i>公司</small><b id="sumCompany">¥0</b></div><div class="group-card"><small><i class="account-dot dot-ben"></i>BEN</small><b id="sumBen">¥0</b></div><div class="group-card"><small><i class="account-dot dot-huijing"></i>惠淨</small><b id="sumHuijing">¥0</b></div><div class="group-card"><small><i class="account-dot dot-rui"></i>RUI</small><b id="sumRui">¥0</b></div></div>
+<div class="expense-groups"><div class="group-card"><small><i class="account-dot dot-company"></i>公司款項</small><b id="sumCompany">NT$0</b></div><div class="group-card"><small><i class="account-dot dot-ben"></i>BEN 款項</small><b id="sumBen">NT$0</b></div><div class="group-card"><small><i class="account-dot dot-huijing"></i>惠淨款項</small><b id="sumHuijing">NT$0</b></div><div class="group-card"><small><i class="account-dot dot-rui"></i>RUI 款項</small><b id="sumRui">NT$0</b></div></div>
+<div class="split-summary company-claim">
+  <div class="split-summary-head"><b>公司請款</b><small>回台後各自向公司請款</small></div>
+  <div id="companyClaims"></div>
+</div>
 <div class="split-summary">
-  <div class="split-summary-head"><b>分攤結算</b><small>依目前匯率換算台幣</small></div>
+  <div class="split-summary-head"><b>私人款項結算</b><small>含代付＋平均分攤</small></div>
   <div id="splitSettlement"></div>
 </div>
-<div class="form" style="grid-template-columns:1fr 1fr;margin-bottom:12px"><input id="rate" type="number" step=".001" placeholder="RMB→TWD 匯率" onchange="renderExpenses()"><select id="expenseFilter" onchange="renderExpenses()"><option value="">全部帳別</option><option>公司</option><option>BEN</option><option>惠淨</option><option>RUI</option></select></div>
+<div class="form" style="grid-template-columns:1fr 1fr;margin-bottom:12px"><input id="rate" type="number" step=".001" placeholder="RMB→TWD 匯率" onchange="renderExpenses()"><select id="expenseFilter" onchange="renderExpenses()"><option value="">全部款項</option><option>公司</option><option>BEN</option><option>惠淨</option><option>RUI</option></select></div>
  <div class="list" id="expenseList"></div>
 </section>
 
@@ -1217,37 +1233,59 @@ function removeItem(t,i){let a=get(t);a.splice(i,1);set(t,a);renderAll()}
 function renderExpenses(){
  storageSetRaw("sg_rate",document.getElementById("rate").value||"0");
  const a=get("expenses"), f=document.getElementById("expenseFilter").value;
- const shown=f?a.filter(x=>(x.account||"公司")===f):a;
  const rate=+document.getElementById("rate").value||0;
  const currency=x=>x.currency||"CNY";
  const twdValue=x=>currency(x)==="TWD"?(+x.amount||0):(+x.amount||0)*rate;
  const fmt=n=>Math.round(n||0).toLocaleString();
+
+ const ownerOf=x=>x.owner || x.account || "公司";
+ const payerOf=x=>x.payerPerson || (["RUI","惠淨","BEN"].includes(x.account)?x.account:"");
+ const shown=f?a.filter(x=>ownerOf(x)===f):a;
+
  const rmbTotal=a.filter(x=>currency(x)==="CNY").reduce((sum,x)=>sum+(+x.amount||0),0);
  const twdDirect=a.filter(x=>currency(x)==="TWD").reduce((sum,x)=>sum+(+x.amount||0),0);
  const twdTotal=a.reduce((sum,x)=>sum+twdValue(x),0);
-
  document.getElementById("expenseTotal").textContent="NT$"+fmt(twdTotal);
  document.getElementById("expenseStat").textContent="NT$"+fmt(twdTotal);
  document.getElementById("twdTotal").textContent=`人民幣 ¥${rmbTotal.toLocaleString()} · 台幣 NT$${fmt(twdDirect)}${rate?` · RMB匯率 ${rate}`:""}`;
 
- const sums={"公司":0,"BEN":0,"惠淨":0,"RUI":0};
- a.forEach(x=>{const k=x.account||"公司"; if(k in sums)sums[k]+=twdValue(x)});
- document.getElementById("sumCompany").textContent="NT$"+fmt(sums["公司"]);
- document.getElementById("sumBen").textContent="NT$"+fmt(sums["BEN"]);
- document.getElementById("sumHuijing").textContent="NT$"+fmt(sums["惠淨"]);
- document.getElementById("sumRui").textContent="NT$"+fmt(sums["RUI"]);
+ const ownerTotals={"公司":0,"BEN":0,"惠淨":0,"RUI":0};
+ a.forEach(x=>{const o=ownerOf(x); if(o in ownerTotals) ownerTotals[o]+=twdValue(x)});
+ document.getElementById("sumCompany").textContent="NT$"+fmt(ownerTotals["公司"]);
+ document.getElementById("sumBen").textContent="NT$"+fmt(ownerTotals["BEN"]);
+ document.getElementById("sumHuijing").textContent="NT$"+fmt(ownerTotals["惠淨"]);
+ document.getElementById("sumRui").textContent="NT$"+fmt(ownerTotals["RUI"]);
 
- // Settlement: positive = should receive, negative = should pay (converted to TWD).
- const net={"公司":0,"BEN":0,"惠淨":0,"RUI":0};
+ const claims={"RUI":0,"惠淨":0,"BEN":0};
  a.forEach(x=>{
-   const payer=x.account||"公司";
-   const people=Array.isArray(x.splitParticipants)?x.splitParticipants.filter(p=>p in net):[];
-   if(people.length<2 || !(payer in net)) return;
-   const total=twdValue(x);
-   const share=total/people.length;
-   net[payer]+=total;
-   people.forEach(p=>net[p]-=share);
+   if(ownerOf(x)!=="公司") return;
+   const payer=payerOf(x);
+   if(payer in claims) claims[payer]+=twdValue(x);
  });
+ const claimEl=document.getElementById("companyClaims");
+ if(claimEl){
+   const rows=Object.entries(claims).filter(([,v])=>v>0.5);
+   claimEl.innerHTML=rows.length
+     ? rows.map(([name,value])=>`<div class="claim-row"><span><b>${esc(name)}</b> 向公司請款</span><b>NT$${fmt(value)}</b></div>`).join("")
+     : `<div class="settle-empty">目前沒有可統計的公司請款。</div>`;
+ }
+
+ const net={"RUI":0,"惠淨":0,"BEN":0};
+ a.forEach(x=>{
+   const owner=ownerOf(x), payer=payerOf(x);
+   if(owner==="公司" || !(payer in net)) return;
+   const total=twdValue(x);
+   const people=Array.isArray(x.splitParticipants)?[...new Set(x.splitParticipants.filter(p=>p in net))]:[];
+   if(people.length>=2){
+     const share=total/people.length;
+     net[payer]+=total;
+     people.forEach(p=>net[p]-=share);
+   }else if(owner in net && owner!==payer){
+     net[payer]+=total;
+     net[owner]-=total;
+   }
+ });
+
  const creditors=Object.entries(net).filter(([,v])=>v>0.5).map(([name,value])=>({name,value})).sort((a,b)=>b.value-a.value);
  const debtors=Object.entries(net).filter(([,v])=>v<-0.5).map(([name,value])=>({name,value:-value})).sort((a,b)=>b.value-a.value);
  const settlements=[];
@@ -1264,23 +1302,30 @@ function renderExpenses(){
  if(settleEl){
    settleEl.innerHTML=settlements.length
      ? settlements.map(x=>`<div class="settle-row"><span><b>${esc(x.from)}</b> → ${esc(x.to)}</span><b>NT$${fmt(x.amount)}</b></div>`).join("")
-     : `<div class="settle-empty">目前沒有需要結算的分攤費用。</div>`;
+     : `<div class="settle-empty">目前沒有需要互相結算的私人款項。</div>`;
  }
 
  document.getElementById("expenseList").innerHTML=shown.length?shown.map((x)=>{
-   let i=a.indexOf(x),acc=x.account||"公司",c=currency(x);
+   const i=a.indexOf(x), owner=ownerOf(x), payer=payerOf(x), c=currency(x);
    const money=c==="TWD"?`NT$${(+x.amount||0).toLocaleString()}`:`¥${(+x.amount||0).toLocaleString()}`;
    const converted=c==="CNY"&&rate?` · 約 NT$${fmt(twdValue(x))}`:"";
-   const people=Array.isArray(x.splitParticipants)?x.splitParticipants:[];
+   const people=Array.isArray(x.splitParticipants)?x.splitParticipants.filter(p=>["RUI","惠淨","BEN"].includes(p)):[];
    let splitInfo="";
    if(people.length>=2){
      const each=(+x.amount||0)/people.length;
      const unit=c==="TWD"?"NT$":"¥";
      splitInfo=`<span class="split-badge">平均分攤：${people.map(esc).join("／")} · 每人 ${unit}${Math.round(each*100)/100}</span>`;
    }
+   const ownerClass=owner==="公司"?" company":"";
+   const payerText=payer?`<span class="expense-pill payer">${esc(payer)} 付款</span>`:`<span class="expense-pill payer">付款人未填</span>`;
    return `<div class="item"><div class="itemtext">
      <b>${esc(x.name)} · ${money}</b>
-     <small><span class="account-chip ${accountClass(acc)}">${esc(acc)} 付款</span>${esc(x.date)} · ${esc(x.category)}${converted}${x.note?" · "+esc(x.note):""}</small>
+     <div class="expense-meta-line">
+       <span class="expense-pill${ownerClass}">${esc(owner)}款項</span>
+       ${payerText}
+       <span class="expense-pill">${esc(x.category)}</span>
+     </div>
+     <small>${esc(x.date)}${converted}${x.note?" · "+esc(x.note):""}</small>
      ${splitInfo}
    </div><button class="del" onclick="removeItem('expenses',${i})">×</button></div>`;
  }).join(""):`<div class="note">還沒有支出紀錄。</div>`;
@@ -1295,16 +1340,18 @@ function openModal(type){
 <input id="m_name" placeholder="項目">
 <select id="m_currency"><option value="CNY">人民幣 RMB ¥</option><option value="TWD">台幣 TWD NT$</option></select>
 <input id="m_amount" type="number" step=".01" inputmode="decimal" placeholder="金額">
-<select id="m_account"><option>公司</option><option>BEN</option><option>惠淨</option><option>RUI</option></select>
+<div class="expense-fields-label">這筆是誰的款項？</div>
+<select id="m_owner"><option>公司</option><option>RUI</option><option>惠淨</option><option>BEN</option></select>
+<div class="expense-fields-label">實際付款人</div>
+<select id="m_payer_person"><option value="">請選擇付款人</option><option>RUI</option><option>惠淨</option><option>BEN</option></select>
 <select id="m_category"><option>餐飲</option><option>交通</option><option>住宿</option><option>採購</option><option>其他</option></select>
 <div class="split-box">
   <div class="split-box-title">平均分攤給誰？</div>
-  <div class="split-box-note">不需分攤可全部不勾；若要分攤，請勾「實際共同分攤的人」，包含付款人本人。</div>
+  <div class="split-box-note">私人共同消費時使用。請勾實際一起分攤的人，包含付款人本人。公司款項通常不用勾，回台後會列入付款人的公司請款。</div>
   <div class="split-people">
-    <label class="split-person"><input type="checkbox" name="m_split" value="公司">公司</label>
-    <label class="split-person"><input type="checkbox" name="m_split" value="BEN">BEN</label>
-    <label class="split-person"><input type="checkbox" name="m_split" value="惠淨">惠淨</label>
     <label class="split-person"><input type="checkbox" name="m_split" value="RUI">RUI</label>
+    <label class="split-person"><input type="checkbox" name="m_split" value="惠淨">惠淨</label>
+    <label class="split-person"><input type="checkbox" name="m_split" value="BEN">BEN</label>
   </div>
 </div>
 <textarea id="m_note" placeholder="備註"></textarea>
@@ -1342,7 +1389,8 @@ function saveModal(){
       name:field("m_name").trim()||"未命名",
       amount:Number(field("m_amount"))||0,
       currency:field("m_currency")||"CNY",
-      account:field("m_account")||"公司",
+      owner:field("m_owner")||"公司",
+      payerPerson:field("m_payer_person")||"",
       category:field("m_category")||"其他",
       splitParticipants:Array.from(document.querySelectorAll('input[name="m_split"]:checked')).map(el=>el.value),
       note:field("m_note").trim()
